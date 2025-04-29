@@ -1,7 +1,8 @@
 /* ------------------------------------------------------------------------- **
  *
- *  LINE -> EXPR; LINE | empty
- *  EXPR -> print number
+ *  INSTR -> OUT; INSTR | VARDECL; INSTR | empty
+ *  OUT -> print number | print var
+ *  VARDECL -> var = number
  *
  * ------------------------------------------------------------------------- */
 
@@ -34,27 +35,35 @@ parser::token_type yylex(parser::semantic_type* yylval,
 }
 
 %token 
-  PRINT   print
-  SCOLON  ";"
+  PRINT  
+  SCOLON 
+  EQ     
   ERR
 ;
 
-%token <int>  NUMBER
-%nterm expr
+%token <int> NUMBER
+%token <std::string> VAR
+
+%nterm out
+%nterm vardecl
 
 %start program
 
 %%
 
-program: line
+program: instr
 ;
 
-line: expr SCOLON line 
-    | %empty
+instr: out SCOLON instr
+     | vardecl SCOLON instr
+     | %empty
 ;
 
-expr: PRINT NUMBER { std::cout << $2 << '\n'; }
+out: PRINT NUMBER { //TODO: AST interaction }
+   | PRINT VAR    { //..................... }
 ;
+
+vardecl: VAR EQ NUMBER {//TODO: AST interaction}
 
 %%
 
