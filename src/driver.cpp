@@ -26,6 +26,7 @@ int main(int argc, char** argv) try {
     if (!ofs.is_open()) return 1;
     gc.printModule(ofs);
 
+
 } catch (const std::exception& e) {
     std::cout << e.what() << '\n';
     return 1;

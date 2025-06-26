@@ -19,7 +19,7 @@ class SLDriver {
     FlexLexer* lexer_;
     codegen::CodeGen* gc_;
     std::unordered_map<std::string, llvm::Value*> vars_;
-
+    std::unordered_map<std::string, float> vals_;
 
 public:
     SLDriver(FlexLexer* lexer, codegen::CodeGen* gc) : 
@@ -38,9 +38,9 @@ public:
         return tt;
     }
 
-    bool addVar(const std::string& name, llvm::Value* var) {
+    bool addVar(const std::string& name, llvm::Value* val) {
         if (!vars_.contains(name)) {
-            vars_[name] = var;
+            vars_[name] = val;
             return true;
         }
         return false;
@@ -63,8 +63,19 @@ public:
         return gc_->createPrint(arg);
     }
 
+    float varVal(const std::string& name) const {
+        if (vars_.contains(name)) return vals_.at(name);
+        throw std::invalid_argument(
+            "It is impossible to create a compute expression");
+    }
+
+    void addExplicitVarVal(const std::string& name, float val) {
+        vals_[name] = val;
+    }
+
     bool parse() {
         parser parser(this);
+        parser.set_debug_level(1);
         bool res = parser.parse();
         gc_->finishGen();
         return !res;
