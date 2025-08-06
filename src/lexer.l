@@ -12,6 +12,7 @@ DIGIT  [0-9]
 PRINT  print
 INPUT  input
 WHILE  while
+ELSE   else
 IF     if
 NAME   [a-zA-Z_][a-zA-Z0-9_]*
 
@@ -32,6 +33,7 @@ NAME   [a-zA-Z_][a-zA-Z0-9_]*
 "!"          return yy::parser::token_type::NOT;
 {WHILE}      return yy::parser::token_type::WHILE;
 {IF}         return yy::parser::token_type::IF;
+{ELSE}       return yy::parser::token_type::ELSE;
 ">"          return yy::parser::token_type::RELOP;
 "<"          return yy::parser::token_type::RELOP;
 ">="         return yy::parser::token_type::RELOP;

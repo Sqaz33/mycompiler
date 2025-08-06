@@ -46,7 +46,6 @@ llvm::Value* CodeGen::createIntVal(int val) {
     return llvm::ConstantInt::get(ty, val);
 }
 
-
 void CodeGen::addDecl(const std::string& varName) {
     auto ty = llvm::Type::getInt32Ty(ctx_);
     auto&& bb = mainFn_->getEntryBlock();

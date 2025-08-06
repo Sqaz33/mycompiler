@@ -71,6 +71,29 @@ llvm::Value* If::codegen() {
     return nullptr;
 }
 
+// IfElse
+IfElse::IfElse(INode* cond, INode* ifBody, INode* elseBody) :
+    cond_(cond)
+    , elseBody_(elseBody)
+    , if_(new If(cond, ifBody))
+{}
+
+IfElse::~IfElse() {
+    delete if_;
+    delete elseBody_;
+}
+
+llvm::Value* IfElse::codegen() {
+    if_->codegen();
+    auto* condV = cond_->codegen();
+    auto* notCondV = 
+        codegen::gen->addOp(Operation::Not, nullptr, condV);
+    auto* mergeBB = codegen::gen->startIf(notCondV);
+    elseBody_->codegen();
+    codegen::gen->endIf(mergeBB);
+    return nullptr;
+}
+
 // While 
 While::While(INode* cond, INode* body) :
     cond_(cond)
@@ -148,6 +171,10 @@ INode* makeVal(int val) {
 
 INode* makeIf(INode* cond, INode* then) {
     return new If(cond, then);
+}
+
+INode* makeIfElse(INode* cond, INode* ifBody, INode* elseBody) {
+    return new IfElse(cond, ifBody, elseBody);
 }
 
 INode* makeWhile(INode* cond, INode* body) {

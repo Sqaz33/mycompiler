@@ -57,6 +57,20 @@ public:
     llvm::Value* codegen() override;
 };
 
+class IfElse : public INode {
+    If* if_;
+    INode* cond_;
+    INode* elseBody_;
+
+public:
+    IfElse(INode* cond, INode* ifBody, INode* elseBody);
+
+    ~IfElse();
+
+public:
+    llvm::Value* codegen() override;
+};
+
 class While : public INode {
     INode* cond_;
     INode* body_;
@@ -76,6 +90,7 @@ class Scope : public IScope {
 
 public:
     Scope(IScope* prev = nullptr);
+
     ~Scope();
 
 public:

@@ -50,6 +50,7 @@ enum class Operation {
 INode* makeOp(INode* lhs, Operation op, INode* rhs);
 INode* makeVal(int val);
 INode* makeIf(INode* cond, INode* then);
+INode* makeIfElse(INode* cond, INode* ifBody, INode* elseBody);
 INode* makeWhile(INode* cond, INode* body);
 
 extern IScope* curScope;

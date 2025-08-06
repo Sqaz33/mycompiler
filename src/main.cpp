@@ -37,26 +37,12 @@ auto createGC(const char* moduleName) {
 int yyFlexLexer::yywrap() { return 1; }
 
 int main(int argc, char** argv) try {
-    std::unique_ptr<char*[]> argvOwner(new char*[3]);
-    if (argc != 3) {
-        argc = 3;
-        argv = argvOwner.get();
-        argv[0] = strdup("1");
-        argv[1] = strdup("../test/fib.sl");
-        argv[2] = strdup("main.ll");
-    }
-
-
     if (argc != 3) return 1;
-
-    std::unique_ptr<codegen::CodeGen> 
-        genOwner(createGC(argv[1]));
-    codegen::gen = genOwner.get();
 
     auto globalScope = std::make_unique<node::Scope>();
     node::curScope = globalScope.get();
-    std::unique_ptr<codegen::CodeGen> gcOwner(createGC(argv[1]));
-    codegen::gen = gcOwner.get();
+    std::unique_ptr<codegen::CodeGen> genOwner(createGC(argv[1]));
+    codegen::gen = genOwner.get();
 
     std::ifstream ifs(argv[1]);
     if (!ifs.is_open()) return 1;

@@ -69,6 +69,7 @@ parser::token_type yylex(parser::semantic_type* yylval,
   INPUT
   ERR
   IF
+  ELSE
   WHILE
 ;
 
@@ -93,6 +94,8 @@ parser::token_type yylex(parser::semantic_type* yylval,
 %nterm <node::INode*> if_head
 %nterm <node::INode*> lval
 %nterm <node::INode*> lexpr
+%nterm <node::INode*> else
+%nterm <node::INode*> if_else
 
 
 %start program
@@ -117,11 +120,15 @@ stms:             stm                         { node::curScope->addBranch($1); }
 
 stm:              oper                        { $$ = $1; }
 
-oper:             if                          {
+oper:             if_else                     {
                                                 $$ = $1;
                                                 node::curScope = node::curScope->reset();
                                               }
                 | while                       {
+                                                $$ = $1;
+                                                node::curScope = node::curScope->reset();
+                                              }
+                | if                          {
                                                 $$ = $1;
                                                 node::curScope = node::curScope->reset();
                                               }
@@ -159,6 +166,29 @@ if:               if_head scope               {
 if_head:          IF LPAR lexpr RPAR          {
                                                 node::curScope = node::curScope->push();
                                                 $$ = $3;
+                                              }
+
+else:             ELSE stm                    { 
+                                                $$ = node::curScope;
+                                                node::curScope = node::curScope->reset();
+                                                node::curScope = node::curScope->push();
+                                                node::curScope->addBranch($2);
+                                              }
+                | ELSE scope                  { 
+                                                $$ = node::curScope;
+                                                node::curScope = node::curScope->reset();
+                                                node::curScope = node::curScope->push();
+                                                node::curScope->addBranch($2);
+                                              }
+
+
+if_else:          if_head scope else          { 
+                                                static_cast<node::IScope*>($3)->addBranch($2);
+                                                $$ = node::makeIfElse($1, $3, node::curScope);
+                                              }
+                | if_head stm else            {
+                                                static_cast<node::IScope*>($3)->addBranch($2);
+                                                $$ = node::makeIfElse($1, $3, node::curScope);
                                               }
 
 lexpr:            expr                        { $$ = $1; }
