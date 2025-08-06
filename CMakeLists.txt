@@ -9,14 +9,14 @@ find_package(FLEX REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 
 flex_target(scanner
-    src/sllex.l
+    src/lexer.l
     ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc
 )
 
 bison_target(parser
-    src/slgrammar.y
+    src/grammar.y
     ${CMAKE_CURRENT_BINARY_DIR}/parser.cc
-    COMPILE_FLAGS "--defines=${CMAKE_CURRENT_BINARY_DIR}/slgrammar.tab.hh"
+    COMPILE_FLAGS "--defines=${CMAKE_CURRENT_BINARY_DIR}/grammar.tab.hh"
 )
 
 add_flex_bison_dependency(scanner parser)
@@ -29,6 +29,9 @@ llvm_map_components_to_libnames(llvm_libs core support)
 add_executable(${PROJECT_NAME} 
     src/driver.cpp
     src/codegen.cpp
+    src/node.cpp
+    src/main.cpp
+    src/symtab.cpp
     ${BISON_parser_OUTPUTS}
     ${FLEX_scanner_OUTPUTS}
 )

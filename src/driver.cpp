@@ -1,35 +1,51 @@
-#include <fstream>
-#include <memory>
-#include <exception>
-#include <iostream>
+#include "driver.hpp"
 
-#include <FlexLexer.h>
+#include <unordered_map>
+#include <string>
 
-#include "sldriver.hpp" 
-#include "codegen.hpp"
+#include "node.hpp"
 
-int yyFlexLexer::yywrap() { return 1; }
+namespace yy {
 
-int main(int argc, char** argv) try {
-    if (argc != 3) return 1;
+Driver::Driver(std::shared_ptr<FlexLexer> lexer) :
+    lexer_(lexer)
+{}
 
-    std::ifstream ifs(argv[1]);
-    if (!ifs.is_open()) return 1;
-    auto lexer = std::make_unique<yyFlexLexer>(&ifs);
+parser::token_type Driver::yylex(parser::semantic_type* yyval) {
+    static const std::unordered_map<std::string, node::Operation> lop {
+        {"<", node::Operation::Less},
+        {"<=", node::Operation::LessEq},
+        {">", node::Operation::Greater},
+        {">=", node::Operation::GreaterEq},
+        {"==", node::Operation::Equal},
+        {"!=", node::Operation::NotEqual}
+    };
 
-    codegen::CodeGen gc("main");    
-
-    yy::SLDriver driver(lexer.get(), &gc);
-    driver.parse();
-
-    std::ofstream ofs(argv[2]);
-    if (!ofs.is_open()) return 1;
-    gc.printModule(ofs);
-
-
-} catch (const std::exception& e) {
-    std::cout << e.what() << '\n';
-    return 1;
-} catch (...) {
-    return 1;
+    auto tt = static_cast<parser::token_type>(lexer_->yylex());
+    switch (tt) {
+        case (yy::parser::token_type::NUMBER):
+            yyval->as<int>() 
+                = std::stoi(lexer_->YYText());
+            break;
+        case (yy::parser::token_type::NAME):
+            yyval->emplace<std::string>() 
+                = lexer_->YYText();
+            break;
+        case (yy::parser::token_type::RELOP):
+            yyval->as<node::Operation>() 
+                = lop.at(lexer_->YYText());
+            break;
+    }
+    
+    return tt;
 }
+
+bool Driver::parse() {
+    parser parser(this);
+    parser.set_debug_level(1);
+    bool res = parser.parse();
+    return !res;
+}
+
+}
+
