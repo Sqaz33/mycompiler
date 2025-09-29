@@ -46,6 +46,5 @@ NAME   [a-zA-Z_][a-zA-Z0-9_]*
 "}"          return yy::parser::token_type::RCB;
 ";"          return yy::parser::token_type::SCOLON;
 {NAME}       return yy::parser::token_type::NAME;
-.            return yy::parser::token_type::ERR;
 
 %%

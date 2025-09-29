@@ -1,12 +1,13 @@
 /* ------------------------------------------------------------------------- **
- *
+ *  deprecated:
+ * ///////////////////////////////////////////////////////////////////////
  *  INSTR -> OUT; INSTR | VARDECL; INSTR | empty
  *  OUT -> print number | print var
  *  VARDECL -> var = EXPR 
  *  EXPR -> TERM - EXPR | TERM + EXPR | TERM
  *  TERM -> MULT * TERM | MULT / TERM | MULT
  *  MULT -> number | (EXPR) | var
- *
+ * ///////////////////////////////////////////////////////////////////////
  * ------------------------------------------------------------------------- */
 
 %language "c++"
@@ -47,39 +48,22 @@ parser::token_type yylex(parser::semantic_type* yylval,
     
 }
 
-%left 
-  PLUS
-  MINUS
-  MUL
-  DIV
-  MOD
-  AND
-  OR
-  NOT
-;
+%defines
 
-%token 
-  LPAR
-  RPAR
-  LCB
-  RCB
-  RELOP
-  SCOLON 
-  PRINT 
-  INPUT
-  ERR
-  IF
-  ELSE
-  WHILE
-;
-
-%nonassoc UMINUS
-%nonassoc <node::Operation> RELOP
-  
-%right ASG
-
-%token <int> NUMBER
 %token <std::string> NAME
+%token <int> NUMBER
+%token WHILE IF ELSE
+%token SCOLON LBR RBR LPAR RPAR LCB RCB ILLEGAL
+%token PRINT
+%right ASG
+%nonassoc <node::Operation> RELOP
+%left INPUT
+%left OR
+%left AND
+%left NOT
+%left PLUS MINUS
+%left MUL DIV MOD
+%nonassoc UMINUS
 
 %nterm <node::INode*> stm
 %nterm <node::INode*> scope
